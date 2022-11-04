@@ -160,7 +160,16 @@ additional metadata is stored. The following snippet asserts that there are no
 additional bytes being used for arrays or user-defined types.",
     )?;
 
-    let res: Vec<String> = resp.trans_result.iter().map(|t| t.dst.clone()).collect();
+    if resp.error_code.is_some() {
+        return Err(anyhow::Error::msg(resp.error_msg.unwrap()));
+    }
+
+    let res: Vec<String> = resp
+        .trans_result
+        .unwrap()
+        .iter()
+        .map(|t| t.dst.clone())
+        .collect();
     let res = res.join("");
     println!("{}", res);
     Ok(())
@@ -186,7 +195,16 @@ additional bytes being used for arrays or user-defined types.",
         )
         .await?;
 
-    let res: Vec<String> = resp.trans_result.iter().map(|t| t.dst.clone()).collect();
+    if resp.error_code.is_some() {
+        return Err(anyhow::Error::msg(resp.error_msg.unwrap()));
+    }
+
+    let res: Vec<String> = resp
+        .trans_result
+        .unwrap()
+        .iter()
+        .map(|t| t.dst.clone())
+        .collect();
     let res = res.join("");
     println!("{}", res);
     Ok(())
