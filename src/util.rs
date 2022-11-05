@@ -173,3 +173,54 @@ pub(crate) fn sign_image<T: AsRef<[u8]>>(
 
     format!("{:x}", hasher.finalize())
 }
+
+/// 构建垂直领域翻译表单
+/// - config: 客户端配置
+/// - q: 待翻译的文本
+/// - domain: 所选择的垂直领域
+#[cfg(feature = "domain")]
+pub(crate) fn build_domain_form(
+    config: &Config,
+    q: &str,
+    domain: crate::domain::Domain,
+) -> HashMap<String, String> {
+    let mut params = HashMap::new();
+
+    let salt = Local::now().timestamp();
+    params.insert("q".into(), q.into());
+    params.insert("from".into(), config.from.to_string());
+    params.insert("to".into(), config.to.to_string());
+    params.insert("appid".into(), config.app_id.clone());
+    params.insert("salt".into(), salt.to_string());
+    params.insert("domain".into(), domain.to_string());
+
+    let sign = sign_domain(config, q, salt, domain);
+    params.insert("sign".into(), sign);
+
+    params
+}
+
+/// 通用翻译签名
+/// - config: 客户端配置
+/// - q: 待翻译的文本
+/// - salt: 随机盐
+/// - domain: 垂直领域
+#[cfg(feature = "domain")]
+pub(crate) fn sign_domain<T: AsRef<str>>(
+    config: &Config,
+    q: T,
+    salt: i64,
+    domain: crate::domain::Domain,
+) -> String {
+    let mut sign_str = String::new();
+    sign_str.push_str(&config.app_id);
+    sign_str.push_str(q.as_ref());
+    sign_str.push_str(&salt.to_string());
+    sign_str.push_str(&domain.to_string());
+    sign_str.push_str(&config.secret_key);
+
+    let mut hasher = Md5::new();
+    hasher.update(sign_str);
+
+    format!("{:x}", hasher.finalize())
+}

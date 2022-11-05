@@ -1,14 +1,15 @@
-//! 百度API翻译SDK
+//! 百度翻译SDK
 //!
 //! ## 支持的功能
 //! - [x] 文本翻译
 //! - [x] 图片翻译
+//! - [x] 垂直领域翻译
 //!
 //! 引入依赖:
 //!
-//! ```ini
+//! ```toml
 //! [dependencies]
-//! baidu_trans =  { version = "0.5.2", features = ["image"] }
+//! baidu_trans =  { version = "0.6.0", features = [] }
 //! ```
 //!
 //! 如果要使用`async/await`，需要添加`aio` features。
@@ -17,15 +18,18 @@
 //!
 //! # 基本用法
 //!
-//! ```ini
+//! ## 使用阻塞的方式。
+//!
+//! 添加依赖:
+//!
+//! ```toml
 //! [dependencies]
 //! anyhow = "1.0.66"
-//! baidu_trans =  { version = "0.5.2", features = ["image"] }
-//! tokio = { version = "1.21.2", features = ["full"] }
+//! baidu_trans =  { version = "0.6.0", features = [] }
 //! dotenv = "0.15.0"
 //! ```
 //!
-//! ## 使用阻塞的方式。
+//! 默认启用的是`blocking` feature.
 //!
 //! ```rust,no_run,ignore
 //! use std::fs;
@@ -44,27 +48,20 @@
 //! automatically introduces overhead thanks to the necessary heap pointer.",
 //!     )?;
 //!
-//!     if resp.error_code.is_some() {
-//!         return Err(anyhow::Error::msg(resp.error_msg.unwrap()));
-//!     }
+//!     assert_eq!(resp.error_code, None);
 //!
-//!     dbg!(resp);
-//!
-//!     let data = fs::read("a.png")?;
-//!     client.lang(Lang::Auto, Lang::Zh);
-//!     let resp = client.image_translate("a.png", data)?;
-//!
-//!     dbg!(resp);
 //!     Ok(())
 //! }
 //! ```
 //!
 //! ## 使用`async/await`方式
 //!
-//! ```ini
+//! 添加依赖:
+//!
+//! ```toml
 //! [dependencies]
 //! anyhow = "1.0.66"
-//! baidu_trans =  { version = "0.5.2", features = ["aio", "image"] }
+//! baidu_trans =  { version = "0.6.0", features = ["aio"] }
 //! tokio = { version = "1.21.2", features = ["full"] }
 //! dotenv = "0.15.0"
 //! ```
@@ -91,20 +88,87 @@
 //!         )
 //!         .await?;
 //!
-//!     if resp.error_code.is_some() {
-//!         return Err(anyhow::Error::msg(resp.error_msg.unwrap()));
-//!     }
-//!
-//!     dbg!(resp);
-//!
-//!     let data = fs::read("a.png").await?;
-//!     client.lang(Lang::Auto, Lang::Zh);
-//!     let resp = client.image_translate("a.png", data).await?;
+//!     assert_eq!(resp.error_code, None);
 //!
 //!     dbg!(resp);
 //!
 //!     Ok(())
 //! }
+//! ```
+//!
+//! ## 图片翻译
+//!
+//! 需要启用`image` feature.
+//!
+//! ```toml
+//! [dependencies]
+//! baidu_trans =  { version = "0.6.0", features = ["image"] }
+//! ```
+//!
+//! 使用方式
+//!
+//! ```rust,no_run,ignore
+//! use baidu_trans::blocking::Client;
+//! use baidu_trans::config::Config;
+//! use baidu_trans::lang::Lang;
+//! use std::fs;
+//!
+//! fn main() -> anyhow::Result<()> {
+//!     dotenv::dotenv()?;
+//!     let app_id = dotenv::var("APP_ID")?;
+//!     let app_secret = dotenv::var("APP_SECRET")?;
+//!
+//!     let client = Client::new(Config::new(app_id, app_secret));
+//!     client.lang(Lang::Auto, Lang::Zh);
+//!
+//!     let data = fs::read("a.png")?;
+//!     /// 图片名称必须填写
+//!     let resp = client.image_translate("a.png", data)?;
+//!
+//!     assert_eq!(resp.error_code, "0");
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ## 垂直领域翻译
+//!
+//! 需要启用`domain` feature.
+//!
+//! ```toml
+//! [dependencies]
+//! baidu_trans =  { version = "0.6.0", features = ["domain"] }
+//!
+//! ```
+//!
+//! 用法
+//!
+//! ```rust,no_run,ignore
+//! use baidu_trans::blocking::Client;
+//! use baidu_trans::config::Config;
+//! use baidu_trans::domain::Domain;
+//! use baidu_trans::lang::Lang;
+//!
+//! fn main() -> anyhow::Result<()> {
+//!
+//!    dotenv::dotenv()?;
+//!    let app_id = dotenv::var("APP_ID")?;
+//!    let app_secret = dotenv::var("APP_SECRET")?;
+//!
+//!    let client = Client::new(Config::new(app_id, app_secret));
+//!
+//!    client.lang(Lang::Auto, Lang::Zh);
+//!
+//!    let resp = client.domain_translate(
+//!        "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
+//!their low overhead and speed compared to heap-allocated data, which
+//!automatically introduces overhead thanks to the necessary heap pointer.",
+//!        Domain::Electronics,
+//!    )?;
+//!
+//!    dbg!(resp);
+//!    Ok(())
+//!}
 //! ```
 
 #![warn(missing_docs)]
@@ -115,6 +179,8 @@ pub mod aio;
 pub mod blocking;
 pub mod config;
 pub mod constant;
+#[cfg(feature = "domain")]
+pub mod domain;
 pub mod lang;
 pub mod model;
 pub mod util;

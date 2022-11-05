@@ -68,10 +68,7 @@ async fn common_translate_aio() -> anyhow::Result<()> {
         .translate(
             "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
 their low overhead and speed compared to heap-allocated data, which
-automatically introduces overhead thanks to the necessary heap pointer. For
-stack variables, Rust's types even allow for zero overhead structures, so no
-additional metadata is stored. The following snippet asserts that there are no
-additional bytes being used for arrays or user-defined types.",
+automatically introduces overhead thanks to the necessary heap pointer.",
         )
         .await?;
 
@@ -97,5 +94,63 @@ async fn image_translate_aio() -> anyhow::Result<()> {
     let data = fs::read("tests/a.png").await?;
     let resp = client.image_translate("a.png", data).await?;
     assert_eq!(resp.error_code, "0");
+    Ok(())
+}
+
+#[cfg(all(feature = "blocking", feature = "domain"))]
+#[test]
+fn domain_translate_blocking() -> anyhow::Result<()> {
+    use baidu_trans::blocking::Client;
+    use baidu_trans::config::Config;
+    use baidu_trans::domain::Domain;
+    use baidu_trans::lang::Lang;
+
+    dotenv::dotenv()?;
+    let app_id = dotenv::var("APP_ID")?;
+    let app_secret = dotenv::var("APP_SECRET")?;
+
+    let client = Client::new(Config::new(app_id, app_secret));
+
+    client.lang(Lang::Auto, Lang::Zh);
+
+    let resp = client.domain_translate(
+        "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
+their low overhead and speed compared to heap-allocated data, which
+automatically introduces overhead thanks to the necessary heap pointer.",
+        Domain::Electronics,
+    )?;
+
+    assert_eq!(resp.error_code, None);
+    dbg!(resp);
+    Ok(())
+}
+
+#[cfg(all(feature = "aio", feature = "domain"))]
+#[tokio::test]
+async fn domain_translate_aio() -> anyhow::Result<()> {
+    use baidu_trans::aio::Client;
+    use baidu_trans::config::Config;
+    use baidu_trans::domain::Domain;
+    use baidu_trans::lang::Lang;
+
+    dotenv::dotenv()?;
+    let app_id = dotenv::var("APP_ID")?;
+    let app_secret = dotenv::var("APP_SECRET")?;
+
+    let client = Client::new(Config::new(app_id, app_secret));
+
+    client.lang(Lang::Auto, Lang::Zh);
+
+    let resp = client
+        .domain_translate(
+            "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
+their low overhead and speed compared to heap-allocated data, which
+automatically introduces overhead thanks to the necessary heap pointer.",
+            Domain::Electronics,
+        )
+        .await?;
+
+    assert_eq!(resp.error_code, None);
+    dbg!(resp);
     Ok(())
 }

@@ -4,7 +4,7 @@
 # Install
 ```toml
 [dependencies]
-baidu_trans =  { version = "0.5.2", features = ["image"] }
+baidu_trans =  { version = "0.6.0", features = ["image"] }
 anyhow = "1.0.66"
 dotenv = "0.15.0"
 ```
@@ -48,7 +48,7 @@ in `cargo.toml`:
 ```toml
 [dependencies]
 anyhow = "1.0.66"
-baidu_trans =  { version = "0.5.2", default-features = false, features = [ "aio", "image"] }
+baidu_trans =  { version = "0.6.0", default-features = false, features = [ "aio", "image"] }
 tokio = { version = "1.21.2", features = ["full"] }
 dotenv = "0.15.0"
 ```
@@ -93,3 +93,4 @@ automatically introduces overhead thanks to the necessary heap pointer.",
 - `blocking`: 默认特性
 - `aio`: 启动`async/await`功能支持
 - `image`: 启用图片翻译功能
+- `domain`: 启用垂直领域翻译功能

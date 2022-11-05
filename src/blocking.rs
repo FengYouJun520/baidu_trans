@@ -1,7 +1,7 @@
 //! 阻塞API
 use std::cell::RefCell;
 
-use crate::{config::Config, constant::COMMON_URL, lang::Lang, model::CommonResult, util};
+use crate::{config::Config, constant::COMMON_URL, lang::Lang, model::common::CommonResult, util};
 
 /// 百度翻译客户端
 pub struct Client {
@@ -28,7 +28,6 @@ impl Client {
 impl Client {
     /// 通用翻译
     /// - q: 源文本
-    #[cfg(feature = "blocking")]
     pub fn translate(&self, q: &str) -> anyhow::Result<CommonResult> {
         let params = util::build_form(&self.config.borrow(), q);
 
@@ -45,7 +44,7 @@ impl Client {
         &self,
         name: &str,
         data: Vec<u8>,
-    ) -> anyhow::Result<crate::model::ImageResult> {
+    ) -> anyhow::Result<crate::model::image::ImageResult> {
         let multipart_form = util::create_image_form_blocking(
             name,
             data,
@@ -61,6 +60,23 @@ impl Client {
             .multipart(multipart_form)
             .send()?;
 
+        Ok(resp.json()?)
+    }
+
+    /// 垂直领域翻译
+    /// - q: 要翻译的文本
+    /// - domain: 选择垂直领域
+    #[cfg(feature = "domain")]
+    pub fn domain_translate(
+        &self,
+        q: &str,
+        domain: crate::domain::Domain,
+    ) -> anyhow::Result<crate::model::domain::DomainResult> {
+        use crate::constant::DOMAIN_URL;
+
+        let params = util::build_domain_form(&self.config.borrow(), q, domain);
+
+        let resp = self.http_client.post(DOMAIN_URL).form(&params).send()?;
         Ok(resp.json()?)
     }
 }

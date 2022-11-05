@@ -1,6 +1,6 @@
 [package]
 name = "baidu_trans"
-version = "0.5.2"
+version = "0.6.0"
 edition = "2021"
 authors = ["FengYouJun"]
 keywords = ["baidu", "translate"]
@@ -24,6 +24,7 @@ tokio = { version = "1", features = ["macros", "fs"], optional = true }
 [features]
 default = ["blocking"]
 image = ["reqwest/multipart"]
+domain = []
 blocking = ["reqwest/blocking"]
 aio = ["tokio", "reqwest/tokio-rustls"]
 
