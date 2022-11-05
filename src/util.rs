@@ -8,7 +8,6 @@ use crate::config::Config;
 /// 构建通用翻译表单
 /// - config: 客户端配置
 /// - q: 待翻译的文本
-#[cfg(feature = "blocking")]
 pub(crate) fn build_form(config: &Config, q: &str) -> HashMap<String, String> {
     let mut params = HashMap::new();
 
@@ -40,7 +39,6 @@ pub(crate) fn build_form(config: &Config, q: &str) -> HashMap<String, String> {
 /// - config: 客户端配置
 /// - q: 待翻译的文本
 /// - salt: 随机盐
-#[cfg(feature = "blocking")]
 pub(crate) fn sign_q<T: AsRef<str>>(config: &Config, q: T, salt: i64) -> String {
     let mut sign_str = String::new();
     sign_str.push_str(&config.app_id);
