@@ -1,6 +1,6 @@
 [package]
 name = "baidu_trans"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["FengYouJun"]
 keywords = ["baidu", "translate"]
@@ -14,17 +14,16 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 anyhow = "1.0.66"
-base64 = { version = "0.13.1", optional = true}
 chrono = "0.4.22"
-md-5 = { version = "0.10.5", optional = true}
+md-5 = { version = "0.10.5"}
 reqwest = { version = "0.11.12", features = ["json"]}
 serde = { version = "1.0.147", features = ["derive"] }
 serde_json = "1.0.87"
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "fs"], optional = true }
 
 [features]
-default = ["blocking", "image"]
-image = ["md-5", "base64"]
+default = ["blocking"]
+image = ["reqwest/multipart"]
 blocking = ["reqwest/blocking"]
 aio = ["tokio", "reqwest/tokio-rustls"]
 
