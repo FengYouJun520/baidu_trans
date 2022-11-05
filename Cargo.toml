@@ -1,6 +1,6 @@
 [package]
 name = "baidu_trans"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 authors = ["FengYouJun"]
 keywords = ["baidu", "translate"]
@@ -19,7 +19,7 @@ md-5 = { version = "0.10.5"}
 reqwest = { version = "0.11.12", features = ["json"]}
 serde = { version = "1.0.147", features = ["derive"] }
 serde_json = "1.0.87"
-tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "fs"], optional = true }
+tokio = { version = "1", features = ["macros", "fs"], optional = true }
 
 [features]
 default = ["blocking"]
