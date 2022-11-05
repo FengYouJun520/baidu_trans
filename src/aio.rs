@@ -1,3 +1,4 @@
+//! 异步API
 use std::cell::RefCell;
 
 use crate::{config::Config, constant::COMMON_URL, lang::Lang, model::CommonResult, util};
@@ -9,6 +10,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// 创建客户端
     pub fn new(config: Config) -> Self {
         Self {
             config: RefCell::new(config),

@@ -1,3 +1,4 @@
+//! 可翻译的语种列表
 use std::fmt::Display;
 
 /// 常见语种

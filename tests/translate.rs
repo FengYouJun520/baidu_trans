@@ -13,10 +13,7 @@ fn common_translate_blocking() -> anyhow::Result<()> {
     let resp = client.translate(
         "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
 their low overhead and speed compared to heap-allocated data, which
-automatically introduces overhead thanks to the necessary heap pointer. For
-stack variables, Rust's types even allow for zero overhead structures, so no
-additional metadata is stored. The following snippet asserts that there are no
-additional bytes being used for arrays or user-defined types.",
+automatically introduces overhead thanks to the necessary heap pointer.",
     )?;
 
     if resp.error_code.is_some() {
