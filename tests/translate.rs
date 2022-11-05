@@ -1,7 +1,7 @@
 #[cfg(feature = "blocking")]
 #[test]
 fn common_translate_blocking() -> anyhow::Result<()> {
-    use baidu_trans::bloking::Client;
+    use baidu_trans::blocking::Client;
     use baidu_trans::config::Config;
 
     dotenv::dotenv()?;
@@ -37,7 +37,7 @@ additional bytes being used for arrays or user-defined types.",
 #[cfg(all(feature = "blocking", feature = "image"))]
 #[test]
 fn image_translate_blocking() -> anyhow::Result<()> {
-    use baidu_trans::bloking::Client;
+    use baidu_trans::blocking::Client;
     use baidu_trans::config::Config;
     use std::fs;
 

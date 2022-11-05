@@ -26,6 +26,7 @@ impl Client {
 impl Client {
     /// 通用翻译
     /// - q: 源文本
+    #[cfg(feature = "blocking")]
     pub fn translate(&self, q: &str) -> anyhow::Result<CommonResult> {
         let params = util::build_form(&self.config.borrow(), q);
 
