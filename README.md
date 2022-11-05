@@ -4,7 +4,7 @@
 # Install
 ```toml
 [dependencies]
-baidu_trans =  { version = "0.4.3", features = ["image"] }
+baidu_trans =  { version = "0.5.1", features = ["image"] }
 anyhow = "1.0.66"
 dotenv = "0.15.0"
 ```
@@ -48,7 +48,7 @@ in `cargo.toml`:
 ```toml
 [dependencies]
 anyhow = "1.0.66"
-baidu_trans =  { version = "0.4.3", default-features = false, features = [ "aio", "image"] }
+baidu_trans =  { version = "0.5.1", default-features = false, features = [ "aio", "image"] }
 tokio = { version = "1.21.2", features = ["full"] }
 dotenv = "0.15.0"
 ```
