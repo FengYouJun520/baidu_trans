@@ -14,7 +14,7 @@ dotenv = "0.15.0"
 ```rust
 use std::fs;
 
-use baidu_trans::{bloking::Client, config::Config};
+use baidu_trans::{bloking::Client, config::Config, lang::Lang};
 
 fn main() -> anyhow::Result<()> {
     dotenv::dotenv()?;
@@ -36,7 +36,7 @@ automatically introduces overhead thanks to the necessary heap pointer.",
     dbg!(resp);
 
     let data = fs::read("a.png")?;
-    client.lang("auto", "zh");
+    client.lang(Lang::Auto, Lang::Zh);
     let resp = client.image_translate("a.png", data)?;
 
     dbg!(resp);
@@ -54,7 +54,7 @@ dotenv = "0.15.0"
 ```
 
 ```rust
-use baidu_trans::{aio::Client, config::Config};
+use baidu_trans::{aio::Client, config::Config, lang::Lang};
 use tokio::fs;
 
 #[tokio::main]
@@ -80,7 +80,7 @@ automatically introduces overhead thanks to the necessary heap pointer.",
     dbg!(resp);
 
     let data = fs::read("a.png").await?;
-    client.lang("auto", "zh");
+    client.lang(Lang::Auto, Lang::Zh);
     let resp = client.image_translate("a.png", data).await?;
 
     dbg!(resp);

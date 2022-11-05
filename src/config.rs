@@ -1,3 +1,5 @@
+use crate::lang::Lang;
+
 /// 客户端配置
 pub struct Config {
     /// APP ID
@@ -5,9 +7,9 @@ pub struct Config {
     /// 密钥
     pub secret_key: String,
     /// 源语言，默认auto
-    pub from: String,
+    pub from: Lang,
     /// 目标语言，默认auto
-    pub to: String,
+    pub to: Lang,
     /// 是否开通词典
     pub open_dict: bool,
     /// 是否开通了TTS
@@ -21,19 +23,19 @@ impl Config {
         Self {
             app_id,
             secret_key: app_secret,
-            from: "auto".into(),
-            to: "auto".into(),
+            from: Lang::default(),
+            to: Lang::default(),
             open_dict: false,
             open_tts: false,
             open_action: false,
         }
     }
 
-    pub fn set_from(&mut self, from: &str) {
-        self.from = from.to_owned();
+    pub fn set_from(&mut self, from: Lang) {
+        self.from = from;
     }
 
-    pub fn set_to(&mut self, to: &str) {
-        self.to = to.to_owned();
+    pub fn set_to(&mut self, to: Lang) {
+        self.to = to;
     }
 }

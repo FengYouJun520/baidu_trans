@@ -39,6 +39,7 @@ additional bytes being used for arrays or user-defined types.",
 fn image_translate_blocking() -> anyhow::Result<()> {
     use baidu_trans::blocking::Client;
     use baidu_trans::config::Config;
+    use baidu_trans::lang::Lang;
     use std::fs;
 
     dotenv::dotenv()?;
@@ -46,7 +47,7 @@ fn image_translate_blocking() -> anyhow::Result<()> {
     let app_secret = dotenv::var("APP_SECRET")?;
 
     let client = Client::new(Config::new(app_id, app_secret));
-    client.lang("auto", "zh");
+    client.lang(Lang::Auto, Lang::Zh);
 
     let data = fs::read("tests/a.png")?;
     let resp = client.image_translate("a.png", data)?;
@@ -86,6 +87,7 @@ additional bytes being used for arrays or user-defined types.",
 async fn image_translate_aio() -> anyhow::Result<()> {
     use baidu_trans::aio::Client;
     use baidu_trans::config::Config;
+    use baidu_trans::lang::Lang;
     use tokio::fs;
 
     dotenv::dotenv()?;
@@ -93,7 +95,7 @@ async fn image_translate_aio() -> anyhow::Result<()> {
     let app_secret = dotenv::var("APP_SECRET")?;
 
     let client = Client::new(Config::new(app_id, app_secret));
-    client.lang("auto", "zh");
+    client.lang(Lang::Auto, Lang::Zh);
 
     let data = fs::read("tests/a.png").await?;
     let resp = client.image_translate("a.png", data).await?;

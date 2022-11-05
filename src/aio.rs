@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use crate::{config::Config, constant::COMMON_URL, model::CommonResult, util};
+use crate::{config::Config, constant::COMMON_URL, lang::Lang, model::CommonResult, util};
 
 /// 百度翻译客户端
 pub struct Client {
@@ -17,7 +17,7 @@ impl Client {
     }
 
     /// 设置源语言和目标语言
-    pub fn lang(&self, from: &str, to: &str) {
+    pub fn lang(&self, from: Lang, to: Lang) {
         self.config.borrow_mut().set_from(from);
         self.config.borrow_mut().set_to(to);
     }

@@ -13,8 +13,8 @@ pub(crate) fn build_form(config: &Config, q: &str) -> HashMap<String, String> {
 
     let salt = Local::now().timestamp();
     params.insert("q".into(), q.into());
-    params.insert("from".into(), config.from.clone());
-    params.insert("to".into(), config.to.clone());
+    params.insert("from".into(), config.from.to_string());
+    params.insert("to".into(), config.to.to_string());
     params.insert("appid".into(), config.app_id.clone());
     params.insert("salt".into(), salt.to_string());
 
@@ -80,8 +80,8 @@ pub(crate) fn create_image_form(
             "image",
             multipart::Part::bytes(data).file_name(name.to_string()),
         )
-        .text("from", config.from.clone())
-        .text("to", config.to.clone())
+        .text("from", config.from.to_string())
+        .text("to", config.to.to_string())
         .text("appid", config.app_id.clone())
         .text("salt", salt.to_string())
         .text("cuid", cuid.to_string())
@@ -124,8 +124,8 @@ pub(crate) fn create_image_form_blocking(
             "image",
             multipart::Part::bytes(data).file_name(name.to_string()),
         )
-        .text("from", config.from.clone())
-        .text("to", config.to.clone())
+        .text("from", config.from.to_string())
+        .text("to", config.to.to_string())
         .text("appid", config.app_id.clone())
         .text("salt", salt.to_string())
         .text("cuid", cuid.to_string())

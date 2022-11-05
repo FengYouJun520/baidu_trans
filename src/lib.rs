@@ -4,5 +4,6 @@ pub mod aio;
 pub mod blocking;
 pub mod config;
 pub mod constant;
+pub mod lang;
 pub mod model;
 pub mod util;
