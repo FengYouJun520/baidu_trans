@@ -154,3 +154,47 @@ automatically introduces overhead thanks to the necessary heap pointer.",
     dbg!(resp);
     Ok(())
 }
+
+#[cfg(all(feature = "blocking", feature = "doc"))]
+#[test]
+fn doc_translate_blocking() -> anyhow::Result<()> {
+    use baidu_trans::blocking::Client;
+    use baidu_trans::config::Config;
+    use baidu_trans::lang::Lang;
+
+    dotenv::dotenv()?;
+    let app_id = dotenv::var("APP_ID")?;
+    let app_secret = dotenv::var("APP_SECRET")?;
+
+    let client = Client::new(Config::new(app_id, app_secret));
+
+    client.lang(Lang::Auto, Lang::Zh);
+
+    let resp = client.doc_count_translate("tests/a.txt")?;
+    assert_eq!(resp.error_code, 52000);
+    dbg!(resp);
+    Ok(())
+}
+
+#[cfg(all(feature = "aio", feature = "doc"))]
+#[tokio::test]
+async fn doc_translate_aio() -> anyhow::Result<()> {
+    use baidu_trans::aio::Client;
+    use baidu_trans::config::Config;
+    use baidu_trans::lang::Lang;
+
+    dotenv::dotenv()?;
+    let app_id = dotenv::var("APP_ID")?;
+    let app_secret = dotenv::var("APP_SECRET")?;
+
+    let client = Client::new(Config::new(app_id, app_secret));
+
+    client.lang(Lang::Auto, Lang::Zh);
+
+    let resp = client.doc_count_translate("tests/a.txt").await?;
+    dbg!(resp);
+    let resp = client.doc_count_translate("tests/b.txt").await?;
+    dbg!(resp);
+
+    Ok(())
+}

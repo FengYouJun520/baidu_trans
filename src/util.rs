@@ -8,7 +8,7 @@ use crate::config::Config;
 
 /// 构建表单参数
 macro_rules! build_params {
-    ($(($key: literal, $value: expr)),*) => {{
+    ($(($key: literal, $value: expr)),+ $(,)?) => {{
         let mut params = HashMap::new();
         $(
             params.insert($key.to_string(), $value.to_string());
@@ -195,23 +195,135 @@ pub(crate) fn build_domain_form(
     params
 }
 
-#[cfg(feature = "doc")]
-pub(crate) fn build_doc_form<T: AsRef<[u8]>>(config: &Config, data: T) -> HashMap<String, String> {
-    let mut params = get_params();
-    params
+/// 构建文档翻译统计校验服务表单
+#[cfg(all(feature = "blocking", feature = "doc"))]
+pub(crate) fn build_doc_count_form_blocking<P>(
+    config: &Config,
+    path: P,
+) -> anyhow::Result<reqwest::blocking::multipart::Form>
+where
+    P: AsRef<std::path::Path>,
+{
+    use reqwest::blocking::multipart;
+    use std::{
+        fs::File,
+        io::{BufReader, Read},
+    };
+
+    let meta = path.as_ref().metadata()?;
+    if !meta.is_file() {
+        return Err(anyhow::anyhow!(
+            "{}不是一个合法路径",
+            path.as_ref().display()
+        ));
+    }
+
+    let mut buf = BufReader::with_capacity(meta.len() as usize, File::open(&path)?);
+    let mut data = vec![];
+    buf.read_to_end(&mut data)?;
+
+    let typ = path
+        .as_ref()
+        .extension()
+        .ok_or(anyhow::anyhow!("该文件没有扩展名"))?;
+
+    let mut kv = vec![
+        ("appid".to_string(), config.app_id.to_string()),
+        ("from".to_string(), config.from.to_string()),
+        ("to".to_string(), config.to.to_string()),
+        (
+            "timestamp".to_string(),
+            Local::now().timestamp().to_string(),
+        ),
+        ("type".to_string(), typ.to_string_lossy().to_string()),
+    ];
+    // 签名需要按key进行排序
+    kv.sort_by(|a, b| a.0.cmp(&b.0));
+
+    // 拼接查询参数,最后面必须要有&
+    let mut query = String::new();
+    for (k, v) in kv.iter() {
+        query.push_str(k);
+        query.push_str("=");
+        query.push_str(v);
+        query.push_str("&");
+    }
+
+    let sign = md5_encode!(&query, md5_encode!(&data), &config.secret_key);
+    // 创建表单
+    let mut params = multipart::Form::new();
+    for (k, v) in kv {
+        params = params.text(k, v);
+    }
+    params = params.text("sign", sign).part(
+        "file",
+        multipart::Part::bytes(data).file_name(path.as_ref().display().to_string()),
+    );
+
+    Ok(params)
 }
 
-#[cfg(feature = "doc")]
-pub(crate) fn get_params() -> HashMap<String, String> {
-    let params = HashMap::new();
-    let mut hasher = Md5::new();
-    params
-}
+/// 构建文档翻译统计校验服务表单
+#[cfg(all(feature = "aio", feature = "doc"))]
+pub(crate) fn build_doc_count_form_aio<P: AsRef<std::path::Path>>(
+    config: &Config,
+    path: P,
+) -> anyhow::Result<reqwest::multipart::Form> {
+    use reqwest::multipart;
+    use std::{
+        fs::File,
+        io::{BufReader, Read},
+    };
 
-/// 对文件进行md5加密
-pub(crate) fn mod_file<T: AsRef<[u8]>>(data: T) -> String {
-    let mut hasher = Md5::new();
-    hasher.update(data);
+    let meta = path.as_ref().metadata()?;
+    if !meta.is_file() {
+        return Err(anyhow::anyhow!(
+            "{}不是一个合法路径",
+            path.as_ref().display()
+        ));
+    }
 
-    format!("{:x}", hasher.finalize())
+    let mut buf = BufReader::with_capacity(meta.len() as usize, File::open(&path)?);
+    let mut data = vec![];
+    buf.read_to_end(&mut data)?;
+
+    let typ = path
+        .as_ref()
+        .extension()
+        .ok_or(anyhow::anyhow!("该文件没有扩展名"))?;
+
+    let mut kv = vec![
+        ("appid".to_string(), config.app_id.to_string()),
+        ("from".to_string(), config.from.to_string()),
+        ("to".to_string(), config.to.to_string()),
+        (
+            "timestamp".to_string(),
+            Local::now().timestamp().to_string(),
+        ),
+        ("type".to_string(), typ.to_string_lossy().to_string()),
+    ];
+    // 签名需要按key进行排序
+    kv.sort_by(|a, b| a.0.cmp(&b.0));
+
+    // 拼接查询参数,最后面必须要有&
+    let mut query = String::new();
+    for (k, v) in kv.iter() {
+        query.push_str(k);
+        query.push_str("=");
+        query.push_str(v);
+        query.push_str("&");
+    }
+
+    let sign = md5_encode!(&query, md5_encode!(&data), &config.secret_key);
+    // 创建表单
+    let mut params = multipart::Form::new();
+    for (k, v) in kv {
+        params = params.text(k, v);
+    }
+    params = params.text("sign", sign).part(
+        "file",
+        multipart::Part::bytes(data).file_name(path.as_ref().display().to_string()),
+    );
+
+    Ok(params)
 }

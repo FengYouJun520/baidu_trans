@@ -88,4 +88,25 @@ impl Client {
 
         Ok(resp.json().await?)
     }
+
+    /// 文档翻译统计校验服务
+    /// - `path`: 文档文件的路径
+    #[cfg(feature = "doc")]
+    pub async fn doc_count_translate<P: AsRef<std::path::Path>>(
+        &self,
+        path: P,
+    ) -> anyhow::Result<crate::document::model::DocCountResult> {
+        use crate::constant::DOC_COUNT_URL;
+
+        let params = util::build_doc_count_form_aio(&self.config.borrow(), path)?;
+
+        let resp = self
+            .http_client
+            .post(DOC_COUNT_URL)
+            .multipart(params)
+            .send()
+            .await?;
+
+        Ok(resp.json().await?)
+    }
 }
