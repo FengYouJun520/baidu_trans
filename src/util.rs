@@ -19,7 +19,7 @@ macro_rules! build_params {
 
 /// md5加密
 macro_rules! md5_encode {
-    ($($item: expr),+) => {{
+    ($($item: expr),+ $(,)?) => {{
         let mut hasher = Md5::new();
 
         $(
@@ -82,7 +82,14 @@ pub(crate) fn create_image_form(
     use reqwest::multipart;
 
     let salt = Local::now().timestamp();
-    let sign = sign_image(&data, config, salt, cuid, mac);
+    let sign = md5_encode!(
+        &config.app_id,
+        md5_encode!(&data),
+        salt.to_string(),
+        cuid,
+        mac,
+        &config.secret_key,
+    );
 
     let params = multipart::Form::new()
         .part(
@@ -126,7 +133,14 @@ pub(crate) fn create_image_form_blocking(
     use reqwest::blocking::multipart;
 
     let salt = Local::now().timestamp();
-    let sign = sign_image(&data, config, salt, cuid, mac);
+    let sign = md5_encode!(
+        &config.app_id,
+        md5_encode!(&data),
+        salt.to_string(),
+        cuid,
+        mac,
+        &config.secret_key
+    );
 
     let params = multipart::Form::new()
         .part(
@@ -149,39 +163,6 @@ pub(crate) fn create_image_form_blocking(
     }
 }
 
-/// 图片翻译签名，需要开启`image` feature。
-/// - data: 图片数据
-/// - config: 客户端配置
-/// - salt: 随机盐
-/// - cuid: 固定值：APICUID
-/// - mac: 固定值：mac
-#[cfg(feature = "image")]
-pub(crate) fn sign_image<T: AsRef<[u8]>>(
-    data: T,
-    config: &Config,
-    salt: i64,
-    cuid: &str,
-    mac: &str,
-) -> String {
-    let mut hasher = Md5::new();
-    hasher.update(data);
-
-    let image_md5 = format!("{:x}", hasher.finalize());
-
-    let mut sign_str = String::new();
-    sign_str.push_str(&config.app_id);
-    sign_str.push_str(&image_md5);
-    sign_str.push_str(&salt.to_string());
-    sign_str.push_str(cuid);
-    sign_str.push_str(mac);
-    sign_str.push_str(&config.secret_key);
-
-    let mut hasher = Md5::new();
-    hasher.update(sign_str);
-
-    format!("{:x}", hasher.finalize())
-}
-
 /// 构建垂直领域翻译表单
 /// - config: 客户端配置
 /// - q: 待翻译的文本
@@ -202,35 +183,16 @@ pub(crate) fn build_domain_form(
     params.insert("salt".into(), salt.to_string());
     params.insert("domain".into(), domain.to_string());
 
-    let sign = sign_domain(config, q, salt, domain);
+    let sign = md5_encode!(
+        &config.app_id,
+        q,
+        salt.to_string(),
+        domain.to_string(),
+        &config.secret_key
+    );
     params.insert("sign".into(), sign);
 
     params
-}
-
-/// 通用翻译签名
-/// - config: 客户端配置
-/// - q: 待翻译的文本
-/// - salt: 随机盐
-/// - domain: 垂直领域
-#[cfg(feature = "domain")]
-pub(crate) fn sign_domain<T: AsRef<str>>(
-    config: &Config,
-    q: T,
-    salt: i64,
-    domain: crate::domain::Domain,
-) -> String {
-    let mut sign_str = String::new();
-    sign_str.push_str(&config.app_id);
-    sign_str.push_str(q.as_ref());
-    sign_str.push_str(&salt.to_string());
-    sign_str.push_str(&domain.to_string());
-    sign_str.push_str(&config.secret_key);
-
-    let mut hasher = Md5::new();
-    hasher.update(sign_str);
-
-    format!("{:x}", hasher.finalize())
 }
 
 #[cfg(feature = "doc")]
