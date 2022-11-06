@@ -103,28 +103,29 @@
     feature = "image",
     doc = r##"
 ## 图片翻译
-//!需要启用`image` feature.
-//!```toml
+需要启用`image` feature.
+```toml
 [dependencies]
 baidu_trans =  { version = "0.7.0", features = ["image"] }
 ```
-//!使用方式
-//!```rust,no_run
+使用方式
+```rust,no_run
 use baidu_trans::blocking::Client;
 use baidu_trans::config::Config;
 use baidu_trans::lang::Lang;
 use std::fs;
-//!fn main() -> anyhow::Result<()> {
+
+fn main() -> anyhow::Result<()> {
     dotenv::dotenv()?;
     let app_id = dotenv::var("APP_ID")?;
     let app_secret = dotenv::var("APP_SECRET")?;
-//!    let client = Client::new(Config::new(app_id, app_secret));
+    let client = Client::new(Config::new(app_id, app_secret));
     client.lang(Lang::Auto, Lang::Zh);
-//!    let data = fs::read("a.png")?;
+    let data = fs::read("a.png")?;
     /// 图片名称必须填写
     let resp = client.image_translate("a.png", data)?;
-//!    assert_eq!(resp.error_code, "0");
-//!    Ok(())
+    assert_eq!(resp.error_code, "0");
+    Ok(())
 }
 ```
 "##
