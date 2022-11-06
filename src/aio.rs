@@ -90,19 +90,50 @@ impl Client {
     }
 
     /// 文档翻译统计校验服务
-    /// - `path`: 文档文件的路径
+    /// - `data`: 文件数据
+    /// - `name`: 文件名
+    /// - `ext`: 文件扩展名
     #[cfg(feature = "doc")]
-    pub async fn doc_count_translate<P: AsRef<std::path::Path>>(
+    pub async fn doc_count_translate(
         &self,
-        path: P,
+        data: Vec<u8>,
+        name: &str,
+        ext: &str,
     ) -> anyhow::Result<crate::document::model::DocCountResult> {
         use crate::constant::DOC_COUNT_URL;
 
-        let params = util::build_doc_count_form_aio(&self.config.borrow(), path)?;
+        let params = util::build_doc_count_form_aio(&self.config.borrow(), data, name, ext)?;
 
         let resp = self
             .http_client
             .post(DOC_COUNT_URL)
+            .multipart(params)
+            .send()
+            .await?;
+
+        Ok(resp.json().await?)
+    }
+
+    /// 文档翻译服务
+    /// - `data`: 文件数据
+    /// - `name`: 文件名
+    /// - `ext`: 文件扩展名
+    /// - `out_type`: 输出扩展名
+    #[cfg(feature = "doc")]
+    pub async fn doc_translate(
+        &self,
+        data: Vec<u8>,
+        name: &str,
+        ext: &str,
+        out_type: &str,
+    ) -> anyhow::Result<crate::document::model::DocResult> {
+        use crate::constant::DOC_URL;
+
+        let params = util::build_doc_form_aio(&self.config.borrow(), data, name, ext, out_type)?;
+
+        let resp = self
+            .http_client
+            .post(DOC_URL)
             .multipart(params)
             .send()
             .await?;

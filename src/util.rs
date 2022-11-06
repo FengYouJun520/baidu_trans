@@ -197,35 +197,13 @@ pub(crate) fn build_domain_form(
 
 /// 构建文档翻译统计校验服务表单
 #[cfg(all(feature = "blocking", feature = "doc"))]
-pub(crate) fn build_doc_count_form_blocking<P>(
+pub(crate) fn build_doc_count_form_blocking(
     config: &Config,
-    path: P,
-) -> anyhow::Result<reqwest::blocking::multipart::Form>
-where
-    P: AsRef<std::path::Path>,
-{
+    data: Vec<u8>,
+    name: &str,
+    ext: &str,
+) -> anyhow::Result<reqwest::blocking::multipart::Form> {
     use reqwest::blocking::multipart;
-    use std::{
-        fs::File,
-        io::{BufReader, Read},
-    };
-
-    let meta = path.as_ref().metadata()?;
-    if !meta.is_file() {
-        return Err(anyhow::anyhow!(
-            "{}不是一个合法路径",
-            path.as_ref().display()
-        ));
-    }
-
-    let mut buf = BufReader::with_capacity(meta.len() as usize, File::open(&path)?);
-    let mut data = vec![];
-    buf.read_to_end(&mut data)?;
-
-    let typ = path
-        .as_ref()
-        .extension()
-        .ok_or(anyhow::anyhow!("该文件没有扩展名"))?;
 
     let mut kv = vec![
         ("appid".to_string(), config.app_id.to_string()),
@@ -235,7 +213,7 @@ where
             "timestamp".to_string(),
             Local::now().timestamp().to_string(),
         ),
-        ("type".to_string(), typ.to_string_lossy().to_string()),
+        ("type".to_string(), ext.to_string()),
     ];
     // 签名需要按key进行排序
     kv.sort_by(|a, b| a.0.cmp(&b.0));
@@ -257,7 +235,7 @@ where
     }
     params = params.text("sign", sign).part(
         "file",
-        multipart::Part::bytes(data).file_name(path.as_ref().display().to_string()),
+        multipart::Part::bytes(data).file_name(name.to_string()),
     );
 
     Ok(params)
@@ -265,32 +243,13 @@ where
 
 /// 构建文档翻译统计校验服务表单
 #[cfg(all(feature = "aio", feature = "doc"))]
-pub(crate) fn build_doc_count_form_aio<P: AsRef<std::path::Path>>(
+pub(crate) fn build_doc_count_form_aio(
     config: &Config,
-    path: P,
+    data: Vec<u8>,
+    name: &str,
+    ext: &str,
 ) -> anyhow::Result<reqwest::multipart::Form> {
     use reqwest::multipart;
-    use std::{
-        fs::File,
-        io::{BufReader, Read},
-    };
-
-    let meta = path.as_ref().metadata()?;
-    if !meta.is_file() {
-        return Err(anyhow::anyhow!(
-            "{}不是一个合法路径",
-            path.as_ref().display()
-        ));
-    }
-
-    let mut buf = BufReader::with_capacity(meta.len() as usize, File::open(&path)?);
-    let mut data = vec![];
-    buf.read_to_end(&mut data)?;
-
-    let typ = path
-        .as_ref()
-        .extension()
-        .ok_or(anyhow::anyhow!("该文件没有扩展名"))?;
 
     let mut kv = vec![
         ("appid".to_string(), config.app_id.to_string()),
@@ -300,7 +259,7 @@ pub(crate) fn build_doc_count_form_aio<P: AsRef<std::path::Path>>(
             "timestamp".to_string(),
             Local::now().timestamp().to_string(),
         ),
-        ("type".to_string(), typ.to_string_lossy().to_string()),
+        ("type".to_string(), ext.to_string()),
     ];
     // 签名需要按key进行排序
     kv.sort_by(|a, b| a.0.cmp(&b.0));
@@ -322,7 +281,107 @@ pub(crate) fn build_doc_count_form_aio<P: AsRef<std::path::Path>>(
     }
     params = params.text("sign", sign).part(
         "file",
-        multipart::Part::bytes(data).file_name(path.as_ref().display().to_string()),
+        multipart::Part::bytes(data).file_name(name.to_string()),
+    );
+
+    Ok(params)
+}
+
+/// 构建文档翻译服务表单
+#[cfg(all(feature = "blocking", feature = "doc"))]
+pub(crate) fn build_doc_form_blocking(
+    config: &Config,
+    data: Vec<u8>,
+    name: &str,
+    typ: &str,
+    out_type: &str,
+) -> anyhow::Result<reqwest::blocking::multipart::Form> {
+    use reqwest::blocking::multipart;
+
+    let mut kv = vec![
+        ("appid".to_string(), config.app_id.to_string()),
+        ("from".to_string(), config.from.to_string()),
+        ("to".to_string(), config.to.to_string()),
+        (
+            "timestamp".to_string(),
+            Local::now().timestamp().to_string(),
+        ),
+        ("type".to_string(), typ.to_string()),
+        ("outPutType".to_string(), out_type.to_string()),
+    ];
+    // 签名需要按key进行排序
+    kv.sort_by(|a, b| a.0.cmp(&b.0));
+
+    // 拼接查询参数,最后面必须要有&
+    let mut query = String::new();
+    for (k, v) in kv.iter() {
+        query.push_str(k);
+        query.push_str("=");
+        query.push_str(v);
+        query.push_str("&");
+    }
+
+    let sign = md5_encode!(&query, md5_encode!(&data), &config.secret_key);
+
+    // 创建表单
+    let mut params = multipart::Form::new();
+    for (k, v) in kv {
+        params = params.text(k, v);
+    }
+
+    params = params.text("sign".to_string(), sign).part(
+        "file",
+        multipart::Part::bytes(data).file_name(name.to_string()),
+    );
+
+    Ok(params)
+}
+
+/// 构建文档翻译服务表单
+#[cfg(all(feature = "aio", feature = "doc"))]
+pub(crate) fn build_doc_form_aio(
+    config: &Config,
+    data: Vec<u8>,
+    name: &str,
+    typ: &str,
+    out_type: &str,
+) -> anyhow::Result<reqwest::multipart::Form> {
+    use reqwest::multipart;
+
+    let mut kv = vec![
+        ("appid".to_string(), config.app_id.to_string()),
+        ("from".to_string(), config.from.to_string()),
+        ("to".to_string(), config.to.to_string()),
+        (
+            "timestamp".to_string(),
+            Local::now().timestamp().to_string(),
+        ),
+        ("type".to_string(), typ.to_string()),
+        ("outPutType".to_string(), out_type.to_string()),
+    ];
+    // 签名需要按key进行排序
+    kv.sort_by(|a, b| a.0.cmp(&b.0));
+
+    // 拼接查询参数,最后面必须要有&
+    let mut query = String::new();
+    for (k, v) in kv.iter() {
+        query.push_str(k);
+        query.push_str("=");
+        query.push_str(v);
+        query.push_str("&");
+    }
+
+    let sign = md5_encode!(&query, md5_encode!(&data), &config.secret_key);
+
+    // 创建表单
+    let mut params = multipart::Form::new();
+    for (k, v) in kv {
+        params = params.text(k, v);
+    }
+
+    params = params.text("sign".to_string(), sign).part(
+        "file",
+        multipart::Part::bytes(data).file_name(name.to_string()),
     );
 
     Ok(params)

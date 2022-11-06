@@ -4,7 +4,7 @@
 # Install
 ```toml
 [dependencies]
-baidu_trans =  { version = "0.6.0", features = ["image"] }
+baidu_trans =  { version = "0.7.0", features = [] }
 anyhow = "1.0.66"
 dotenv = "0.15.0"
 ```
@@ -12,9 +12,8 @@ dotenv = "0.15.0"
 # examples
 ## `blocking` feature:
 ```rust
-use std::fs;
 
-use baidu_trans::{bloking::Client, config::Config, lang::Lang};
+use baidu_trans::{blocking::Client, config::Config, lang::Lang};
 
 fn main() -> anyhow::Result<()> {
     dotenv::dotenv()?;
@@ -23,6 +22,7 @@ fn main() -> anyhow::Result<()> {
 
     let client = Client::new(Config::new(app_id, app_secret));
 
+    client.lang(Lang::Auto, Lang::Zh);
     let resp = client.translate(
         "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
 their low overhead and speed compared to heap-allocated data, which
@@ -35,11 +35,6 @@ automatically introduces overhead thanks to the necessary heap pointer.",
 
     dbg!(resp);
 
-    let data = fs::read("a.png")?;
-    client.lang(Lang::Auto, Lang::Zh);
-    let resp = client.image_translate("a.png", data)?;
-
-    dbg!(resp);
     Ok(())
 }
 ```
@@ -48,7 +43,7 @@ in `cargo.toml`:
 ```toml
 [dependencies]
 anyhow = "1.0.66"
-baidu_trans =  { version = "0.6.0", default-features = false, features = [ "aio", "image"] }
+baidu_trans =  { version = "0.7.0", features = [ "aio"] }
 tokio = { version = "1.21.2", features = ["full"] }
 dotenv = "0.15.0"
 ```
@@ -64,6 +59,7 @@ async fn main() -> anyhow::Result<()> {
 
     let client = Client::new(Config::new(app_id, app_secret));
 
+    client.lang(Lang::Auto, Lang::Zh);
     let resp = client
         .translate(
             "As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
@@ -87,3 +83,4 @@ automatically introduces overhead thanks to the necessary heap pointer.",
 - `aio`: 启动`async/await`功能支持
 - `image`: 启用图片翻译功能
 - `domain`: 启用垂直领域翻译功能
+- `doc`:启用文档翻译功能

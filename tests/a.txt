@@ -1,1 +1,3 @@
-hello world
+As we discussed in Chapter 1, Hello Rust!, stack variables are preferred thanks to
+their low overhead and speed compared to heap-allocated data, which
+automatically introduces overhead thanks to the necessary heap pointer.
