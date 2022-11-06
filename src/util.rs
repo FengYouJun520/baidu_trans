@@ -6,20 +6,45 @@ use md5::{Digest, Md5};
 
 use crate::config::Config;
 
+/// 构建表单参数
+macro_rules! build_params {
+    ($(($key: literal, $value: expr)),*) => {{
+        let mut params = HashMap::new();
+        $(
+            params.insert($key.to_string(), $value.to_string());
+        )*
+        params
+    }};
+}
+
+/// md5加密
+macro_rules! md5_encode {
+    ($($item: expr),+) => {{
+        let mut hasher = Md5::new();
+
+        $(
+            hasher = hasher.chain_update($item);
+        )*
+
+        format!("{:x}", hasher.finalize())
+    }};
+}
+
 /// 构建通用翻译表单
 /// - config: 客户端配置
 /// - q: 待翻译的文本
 pub(crate) fn build_form(config: &Config, q: &str) -> HashMap<String, String> {
-    let mut params = HashMap::new();
-
     let salt = Local::now().timestamp();
-    params.insert("q".into(), q.into());
-    params.insert("from".into(), config.from.to_string());
-    params.insert("to".into(), config.to.to_string());
-    params.insert("appid".into(), config.app_id.clone());
-    params.insert("salt".into(), salt.to_string());
+    let mut params = build_params! {
+        ("q", q),
+        ("from", &config.from),
+        ("to", &config.to),
+        ("appid", config.app_id),
+        ("salt", salt)
+    };
 
-    let sign = sign_q(config, q, salt);
+    // let sign = sign_q(config, q, salt);
+    let sign = md5_encode!(&config.app_id, q, salt.to_string(), &config.secret_key);
     params.insert("sign".into(), sign);
 
     // 开通词典、TTS用户
@@ -34,23 +59,6 @@ pub(crate) fn build_form(config: &Config, q: &str) -> HashMap<String, String> {
     }
 
     params
-}
-
-/// 通用翻译签名
-/// - config: 客户端配置
-/// - q: 待翻译的文本
-/// - salt: 随机盐
-pub(crate) fn sign_q<T: AsRef<str>>(config: &Config, q: T, salt: i64) -> String {
-    let mut sign_str = String::new();
-    sign_str.push_str(&config.app_id);
-    sign_str.push_str(q.as_ref());
-    sign_str.push_str(&salt.to_string());
-    sign_str.push_str(&config.secret_key);
-
-    let mut hasher = Md5::new();
-    hasher.update(sign_str);
-
-    format!("{:x}", hasher.finalize())
 }
 
 /// 构建图片翻译表单参数, 需要开启`aio`和`image` features。
@@ -221,6 +229,27 @@ pub(crate) fn sign_domain<T: AsRef<str>>(
 
     let mut hasher = Md5::new();
     hasher.update(sign_str);
+
+    format!("{:x}", hasher.finalize())
+}
+
+#[cfg(feature = "doc")]
+pub(crate) fn build_doc_form<T: AsRef<[u8]>>(config: &Config, data: T) -> HashMap<String, String> {
+    let mut params = get_params();
+    params
+}
+
+#[cfg(feature = "doc")]
+pub(crate) fn get_params() -> HashMap<String, String> {
+    let params = HashMap::new();
+    let mut hasher = Md5::new();
+    params
+}
+
+/// 对文件进行md5加密
+pub(crate) fn mod_file<T: AsRef<[u8]>>(data: T) -> String {
+    let mut hasher = Md5::new();
+    hasher.update(data);
 
     format!("{:x}", hasher.finalize())
 }

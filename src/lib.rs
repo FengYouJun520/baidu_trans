@@ -177,6 +177,8 @@ pub mod aio;
 pub mod blocking;
 pub mod config;
 pub mod constant;
+#[cfg(feature = "doc")]
+pub mod document;
 #[cfg(feature = "domain")]
 pub mod domain;
 pub mod lang;

@@ -22,9 +22,10 @@ serde_json = "1.0.87"
 tokio = { version = "1", features = ["macros", "fs"], optional = true }
 
 [features]
-default = ["blocking"]
+default = ["blocking", "aio", "image", "domain", "doc"]
 image = ["reqwest/multipart"]
 domain = []
+doc = []
 blocking = ["reqwest/blocking"]
 aio = ["tokio", "reqwest/tokio-rustls"]
 
