@@ -32,7 +32,6 @@
 //! 默认启用的是`blocking` feature.
 //!
 //! ```rust,no_run,ignore
-//! use std::fs;
 //! use baidu_trans::{blocking::Client, config::Config, lang::Lang};
 //!
 //! fn main() -> anyhow::Result<()> {
@@ -70,7 +69,6 @@
 //!
 //! ```rust,no_run,ignore
 //! use baidu_trans::{aio::Client, config::Config, lang::Lang};
-//! use tokio::fs;
 //!
 //! #[tokio::main]
 //! async fn main() -> anyhow::Result<()> {

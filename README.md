@@ -55,7 +55,6 @@ dotenv = "0.15.0"
 
 ```rust
 use baidu_trans::{aio::Client, config::Config, lang::Lang};
-use tokio::fs;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -76,12 +75,6 @@ automatically introduces overhead thanks to the necessary heap pointer.",
     if resp.error_code.is_some() {
         return Err(anyhow::Error::msg(resp.error_msg.unwrap()));
     }
-
-    dbg!(resp);
-
-    let data = fs::read("a.png").await?;
-    client.lang(Lang::Auto, Lang::Zh);
-    let resp = client.image_translate("a.png", data).await?;
 
     dbg!(resp);
 

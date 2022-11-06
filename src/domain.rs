@@ -8,7 +8,6 @@ pub enum Domain {
     ///
     /// - 中文-->英语
     Electronics,
-
     /// 金融财经领域
     ///
     /// - 中文-->英语
