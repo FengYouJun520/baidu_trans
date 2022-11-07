@@ -10,7 +10,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! baidu_trans =  { version = "0.7.3", features = [] }
+//! baidu_trans =  { version = "0.7.4", features = [] }
 //! ```
 //!
 //! 如果要使用`async/await`，需要添加`aio` features。
@@ -26,7 +26,7 @@
 //! ```toml
 //! [dependencies]
 //! anyhow = "1.0.66"
-//! baidu_trans =  { version = "0.7.3", features = [] }
+//! baidu_trans =  { version = "0.7.4", features = [] }
 //! dotenv = "0.15.0"
 //! ```
 //!
@@ -64,7 +64,7 @@
  ```toml
  [dependencies]
  anyhow = "1.0.66"
- baidu_trans =  { version = "0.7.3", features = ["aio"] }
+ baidu_trans =  { version = "0.7.4", features = ["aio"] }
  tokio = { version = "1.21.2", features = ["full"] }
  dotenv = "0.15.0"
  ```
@@ -106,7 +106,7 @@
 需要启用`image` feature.
 ```toml
 [dependencies]
-baidu_trans =  { version = "0.7.3", features = ["image"] }
+baidu_trans =  { version = "0.7.4", features = ["image"] }
 ```
 使用方式
 ```rust,no_run
@@ -140,7 +140,7 @@ fn main() -> anyhow::Result<()> {
 
  ```toml
  [dependencies]
- baidu_trans =  { version = "0.7.3", features = ["domain"] }
+ baidu_trans =  { version = "0.7.4", features = ["domain"] }
 
  ```
 
