@@ -5,7 +5,7 @@
 //! 启动文档翻译需要开启`doc` feature
 //!
 //! ```toml
-//! baidu_trans = { version = "0.7.4", features = ["doc"] }
+//! baidu_trans = { version = "0.7.5", features = ["doc"] }
 //! ```
 
 pub mod model;
