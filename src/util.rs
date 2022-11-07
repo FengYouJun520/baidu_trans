@@ -1,4 +1,4 @@
-//! 工具函数
+//! 相关辅助函数
 use std::collections::HashMap;
 
 use chrono::Local;

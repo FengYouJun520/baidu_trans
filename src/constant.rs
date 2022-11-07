@@ -1,4 +1,4 @@
-//! 工具函数
+//! 相关常量
 
 /// 百度通用翻译API地址
 pub const COMMON_URL: &'static str = "https://fanyi-api.baidu.com/api/trans/vip/translate";
