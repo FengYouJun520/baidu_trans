@@ -1,7 +1,7 @@
 //! 阻塞API
 use std::cell::RefCell;
 
-use crate::{config::Config, constant::COMMON_URL, lang::Lang, model::common::CommonResult, util};
+use crate::{config::Config, constant::COMMON_URL, lang::Lang, model::CommonResult, util};
 
 /// 百度翻译客户端
 pub struct Client {
@@ -44,7 +44,7 @@ impl Client {
         &self,
         name: &str,
         data: Vec<u8>,
-    ) -> anyhow::Result<crate::model::image::ImageResult> {
+    ) -> anyhow::Result<crate::image::model::ImageResult> {
         let multipart_form = util::create_image_form_blocking(
             name,
             data,
@@ -71,7 +71,7 @@ impl Client {
         &self,
         q: &str,
         domain: crate::domain::Domain,
-    ) -> anyhow::Result<crate::model::domain::DomainResult> {
+    ) -> anyhow::Result<crate::domain::model::DomainResult> {
         use crate::constant::DOMAIN_URL;
 
         let params = util::build_domain_form(&self.config.borrow(), q, domain);

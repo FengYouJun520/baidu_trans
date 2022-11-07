@@ -1,5 +1,6 @@
 //! 垂直领域翻译支持范围
 
+pub mod model;
 use std::{fmt::Display, str::FromStr};
 
 /// 垂直领域翻译支持范围
